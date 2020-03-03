@@ -25,23 +25,26 @@ int main()
 
 
 	init_UART();
-	UART_SEND_string("System init\r\n");
+
+	UART_SEND_string("System init RX \r\n");
 	//.......init nrf24.......................................
+
 
 	init_Nrf24();
 
-	UART_SEND_string("SPI init Done\r\n");
+	UART_SEND_string("SPI init Done RX\r\n");
 	//.......write config  nrf24..............................
 
 	/* Channel #2 , payload length: 4 */
 	nrf24_config(2,4);
-	UART_SEND_string("nrf24 Config done \r\n");
+	UART_SEND_string("nrf24 Config done RX\r\n");
 	//.....................................................
 
-	nrf24_tx_address(tx_address);
+	nrf24_tx_address(tx_address);   // (N)
 	nrf24_rx_address(rx_address);
 
-	UART_SEND_string("Start Prog\r\n");
+	UART_SEND_string("Start Prog RX\r\n");
+
 
 	while(1)
 	{
@@ -50,7 +53,7 @@ int main()
         if(nrf24_dataReady())
         {
             nrf24_getData(data_array);
-            UART_SEND_string("Data recieved ----->>");
+            UART_SEND_string("Data recieved ----->>  ");
 
             UART_SendChar(data_array[0]);
 

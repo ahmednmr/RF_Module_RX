@@ -14,11 +14,11 @@
 	void init_Nrf24(void)
 	{
 	SPI_MasterInit();//EF_SpiInit(1);
-	DDRD |=(1<<PD3);  //PD3 to CE
+	DDRB |=(1<<PB3);  //PD3 to CE
 	DDRB |=(1<<PB4);  // PB4 to CSN
 
-	PORTD &=~(1<<PD3);     //CE
-	nrf24_csn_digitalWrite(HIGH);
+	PORTB &=~(1<<PB3);     //CE
+	nrf24_csn_digitalWrite(HIGH);   //csn   PB4
 
 	}
 
@@ -70,7 +70,7 @@ void nrf24_config(char channel, char pay_length)
 	nrf24_configRegister(CONFIG,nrf24_CONFIG);
 
 	// Auto Acknowledgment
-	nrf24_configRegister(EN_AA,(1<<ENAA_P0)|(1<<ENAA_P1)|(0<<ENAA_P2)|(0<<ENAA_P3)|(0<<ENAA_P4)|(0<<ENAA_P5));
+	nrf24_configRegister(EN_AA,(1<<ENAA_P0)|(1<<ENAA_P1)|(0<<ENAA_P2)|(0<<ENAA_P3)|(0<<ENAA_P4)|(0<<ENAA_P5));    //why
 
 	// Enable RX addresses
 	nrf24_configRegister(EN_RXADDR,(1<<ERX_P0)|(1<<ERX_P1)|(0<<ERX_P2)|(0<<ERX_P3)|(0<<ERX_P4)|(0<<ERX_P5));
@@ -106,11 +106,11 @@ void nrf24_ce_digitalWrite(char state)
 {
 	if(state)
 	{
-		PORTD |=(1<<PD3);
+		PORTB |=(1<<PB3);
 	}
 	else
 	{
-		PORTD &=~(1<<PD3);
+		PORTB &=~(1<<PB3);
 	}
 }
 
@@ -134,7 +134,7 @@ void nrf24_writeRegister(char reg, char* value, char len)
 }
 
 /* send multiple bytes over SPI */
-void nrf24_transmitSync(char* dataout,char len)
+void nrf24_transmitSync(char* dataout,char len)    //send only
 {
 	uint8_t i;
 
@@ -145,7 +145,7 @@ void nrf24_transmitSync(char* dataout,char len)
 
 }
 
-void nrf24_transferSync(char* dataout,char* datain,char len)
+void nrf24_transferSync(char* dataout,char* datain,char len)   //rec Data array
 {
 	uint8_t i;
 
@@ -159,9 +159,9 @@ void nrf24_transferSync(char* dataout,char* datain,char len)
 
 void nrf24_rx_address(char * adr)
 {
-	nrf24_ce_digitalWrite(LOW);
+//	nrf24_ce_digitalWrite(LOW);    //  (N)
 	nrf24_writeRegister(RX_ADDR_P1,adr,nrf24_ADDR_LEN);
-	nrf24_ce_digitalWrite(HIGH);
+//	nrf24_ce_digitalWrite(HIGH);   //  (N)
 }
 
 
@@ -236,7 +236,7 @@ char nrf24_getStatus()
 {
 	char rv;
 	nrf24_csn_digitalWrite(LOW);
-	rv = SPI_Transmit(NOP);
+	rv = SPI_Transmit(NOP);      //send garbage data to rec status reg
 	nrf24_csn_digitalWrite(HIGH);
 	return rv;
 }
@@ -306,7 +306,7 @@ char nrf24_dataReady()
         return 1;
     }
 
-    return !nrf24_rxFifoEmpty();;
+    return !nrf24_rxFifoEmpty();
 }
 
 
@@ -326,7 +326,7 @@ void nrf24_getData(char* data)
     nrf24_csn_digitalWrite(HIGH);
 
     /* Reset status register */
-    nrf24_configRegister(STATUS,(1<<RX_DR));
+    nrf24_configRegister(STATUS,(1<<RX_DR));    //clear flag
 }
 
 
